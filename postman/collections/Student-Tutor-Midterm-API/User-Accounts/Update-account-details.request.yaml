@@ -1,0 +1,20 @@
+$kind: http-request
+name: Update account details
+order: 3000
+method: PATCH
+url: '{{baseUrl}}/api/v1/users/{{userId}}'
+description: 'Role: Admin. Success: 200. Failure: Missing user → 404; invalid role → 400.'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Updated Student"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

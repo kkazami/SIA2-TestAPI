@@ -1,0 +1,11 @@
+$kind: http-request
+name: Remove a slot
+order: 4000
+method: DELETE
+url: '{{baseUrl}}/api/v1/availability/{{slotId}}'
+description: "Role: Tutor or Admin. Success: 200. Failure: Other tutor's slot → 403; history → 409."
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

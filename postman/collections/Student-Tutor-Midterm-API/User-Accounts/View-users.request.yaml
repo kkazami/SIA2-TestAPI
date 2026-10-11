@@ -1,0 +1,11 @@
+$kind: http-request
+name: View users
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/v1/users'
+description: 'Role: Admin. Success: 200. Failure: Student or Tutor → 403.'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

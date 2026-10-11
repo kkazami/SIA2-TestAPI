@@ -1,0 +1,11 @@
+$kind: http-request
+name: Deactivate account
+order: 4000
+method: DELETE
+url: '{{baseUrl}}/api/v1/users/{{userId}}'
+description: 'Role: Admin. Success: 200. Failure: Missing user → 404; last active Admin → 409.'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

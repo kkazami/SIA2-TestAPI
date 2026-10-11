@@ -1,0 +1,11 @@
+$kind: http-request
+order: 2000
+method: POST
+url: '{{baseUrl}}/api/v1/auth/logout'
+description: 'Role: Any. Success: 200. Failure: Missing or revoked token → 401.'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));
+      if (pm.response.code === 200) pm.collectionVariables.set("token", "");

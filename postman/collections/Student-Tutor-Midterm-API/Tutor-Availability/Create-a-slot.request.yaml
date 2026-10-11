@@ -1,0 +1,23 @@
+$kind: http-request
+name: Create a slot
+order: 2000
+method: POST
+url: '{{baseUrl}}/api/v1/availability'
+description: 'Role: Tutor or Admin. Success: 201. Failure: Invalid dates → 400; overlap → 409.'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "tutorId": {{tutorId}},
+      "startUtc": "{{slotStart}}",
+      "endUtc": "{{slotEnd}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 201", () => pm.response.to.have.status(201));
+      if (pm.response.code === 201) pm.collectionVariables.set("slotId", pm.response.json().id);

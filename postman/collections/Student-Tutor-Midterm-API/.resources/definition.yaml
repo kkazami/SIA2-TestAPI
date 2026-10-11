@@ -1,0 +1,34 @@
+$kind: collection
+name: Student-Tutor Midterm API
+description: '14 endpoints. Follow POSTMAN_GUIDE.md for role switching and test order.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+variables:
+  - key: baseUrl
+    value: 'http://localhost:5156'
+  - key: loginEmail
+    value: admin@demo.local
+  - key: loginPassword
+    value: 'DemoPass123!'
+  - key: token
+    value: ''
+  - key: tutorId
+    value: '2'
+  - key: slotId
+    value: ''
+  - key: appointmentId
+    value: ''
+  - key: userId
+    value: ''
+  - key: slotStart
+    value: ''
+  - key: slotEnd
+    value: ''
+scripts:
+  - type: 'http:beforeRequest'
+    language: text/javascript
+    code: |-
+      if (!pm.collectionVariables.get("slotStart")) { const start = new Date(Date.now() + 86400000); start.setUTCMinutes(0, 0, 0); pm.collectionVariables.set("slotStart", start.toISOString()); pm.collectionVariables.set("slotEnd", new Date(start.getTime() + 3600000).toISOString()); }

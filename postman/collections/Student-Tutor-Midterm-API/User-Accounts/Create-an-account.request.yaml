@@ -1,0 +1,24 @@
+$kind: http-request
+name: Create an account
+order: 2000
+method: POST
+url: '{{baseUrl}}/api/v1/users'
+description: 'Role: Admin. Success: 201. Failure: Duplicate email → 409; invalid email → 400.'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Sample Student",
+      "email": "student-{{$timestamp}}@example.com",
+      "password": "StudentPass123!",
+      "role": "Student"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 201", () => pm.response.to.have.status(201));
+      if (pm.response.code === 201) pm.collectionVariables.set("userId", pm.response.json().id);

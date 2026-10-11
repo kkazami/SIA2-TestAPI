@@ -1,0 +1,11 @@
+$kind: http-request
+name: View specific appointment
+order: 2000
+method: GET
+url: '{{baseUrl}}/api/v1/appointments/{{appointmentId}}'
+description: "Role: Any (own records; Admin all). Success: 200. Failure: Missing appointment → 404; other's appointment → 403."
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

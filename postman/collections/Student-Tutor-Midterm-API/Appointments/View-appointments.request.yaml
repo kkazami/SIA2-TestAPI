@@ -1,0 +1,11 @@
+$kind: http-request
+name: View appointments
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/v1/appointments'
+description: 'Role: Any. Success: 200. Failure: Missing token → 401.'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));

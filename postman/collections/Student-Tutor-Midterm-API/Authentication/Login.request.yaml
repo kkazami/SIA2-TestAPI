@@ -1,0 +1,23 @@
+$kind: http-request
+order: 1000
+method: POST
+url: '{{baseUrl}}/api/v1/auth/login'
+description: 'Role: None. Success: 200. Failure: Invalid credentials → 401.'
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{loginEmail}}",
+      "password": "{{loginPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));
+      if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set("token", data.token); pm.collectionVariables.set(data.user.role.toLowerCase() + "Token", data.token); pm.collectionVariables.set(data.user.role.toLowerCase() + "Id", data.user.id); }

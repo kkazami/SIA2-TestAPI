@@ -1,0 +1,869 @@
+{
+  "info": {
+    "name": "Midterm Final API Reference",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Use only after manually applying REMAINING_CODE.md. Fourteen routes; switch roles by sending Login with the desired loginEmail. Not intended to run top-to-bottom with one role."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5156",
+      "type": "string"
+    },
+    {
+      "key": "loginEmail",
+      "value": "admin@example.com",
+      "type": "string"
+    },
+    {
+      "key": "loginPassword",
+      "value": "DemoPass123!",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tutorId",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "availabilityId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "startTime",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "endTime",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get(\"startTime\")) { const start = new Date(Date.now() + 86400000); start.setUTCMinutes(0,0,0); pm.collectionVariables.set(\"startTime\", start.toISOString()); pm.collectionVariables.set(\"endTime\", new Date(start.getTime() + 3600000).toISOString()); }"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "Role: Public. Expected 200. Failure: Wrong password: 401. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{loginEmail}}\",\n  \"password\": \"{{loginPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set(\"token\", data.token); pm.collectionVariables.set(data.user.role.toLowerCase() + \"Token\", data.token); pm.collectionVariables.set(data.user.role.toLowerCase() + \"Id\", data.user.id); }"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/login",
+                "description": "Role: Public. Expected 200. Failure: Wrong password: 401. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{loginEmail}}\",\n  \"password\": \"{{loginPassword}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Login successful.\",\n  \"token\": \"<generated token>\",\n  \"expiresUtc\": \"2026-10-13T02:00:00Z\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Demo Admin\",\n    \"email\": \"admin@example.com\",\n    \"role\": \"Admin\",\n    \"isActive\": true\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/logout",
+            "description": "Role: Any logged-in user. Expected 200. Failure: Revoked token: 401. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"token\", \"\");"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/auth/logout",
+                "description": "Role: Any logged-in user. Expected 200. Failure: Revoked token: 401. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Logout successful.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tutor Availability",
+      "item": [
+        {
+          "name": "View available slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/availability",
+            "description": "Role: Any logged-in user. Expected 200. Failure: No token: 401. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/availability",
+                "description": "Role: Any logged-in user. Expected 200. Failure: No token: 401. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"tutorId\": 2,\n    \"startTime\": \"2026-10-20T10:00:00Z\",\n    \"endTime\": \"2026-10-20T11:00:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create a slot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/availability",
+            "description": "Role: Tutor or Admin. Expected 201. Failure: Overlap: 409; reversed dates: 400. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tutorId\": {{tutorId}},\n  \"startTime\": \"{{startTime}}\",\n  \"endTime\": \"{{endTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"availabilityId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/availability",
+                "description": "Role: Tutor or Admin. Expected 201. Failure: Overlap: 409; reversed dates: 400. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tutorId\": {{tutorId}},\n  \"startTime\": \"{{startTime}}\",\n  \"endTime\": \"{{endTime}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"tutorId\": 2,\n  \"startTime\": \"2026-10-20T10:00:00Z\",\n  \"endTime\": \"2026-10-20T11:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update a slot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/availability/{{availabilityId}}",
+            "description": "Role: Owning Tutor or Admin. Expected 200. Failure: Missing ID: 404; booked history: 409. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tutorId\": {{tutorId}},\n  \"startTime\": \"{{startTime}}\",\n  \"endTime\": \"{{endTime}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/availability/{{availabilityId}}",
+                "description": "Role: Owning Tutor or Admin. Expected 200. Failure: Missing ID: 404; booked history: 409. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tutorId\": {{tutorId}},\n  \"startTime\": \"{{startTime}}\",\n  \"endTime\": \"{{endTime}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"tutorId\": 2,\n  \"startTime\": \"2026-10-20T10:00:00Z\",\n  \"endTime\": \"2026-10-20T11:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete a slot",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/availability/{{availabilityId}}",
+            "description": "Role: Owning Tutor or Admin. Expected 200. Failure: Booked history: 409. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/availability/{{availabilityId}}",
+                "description": "Role: Owning Tutor or Admin. Expected 200. Failure: Booked history: 409. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Slot removed.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "View appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments",
+            "description": "Role: Own records; Admin sees all. Expected 200. Failure: No token: 401. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/appointments",
+                "description": "Role: Own records; Admin sees all. Expected 200. Failure: No token: 401. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"studentId\": 3,\n    \"availabilityId\": 1,\n    \"status\": \"Booked\",\n    \"tutorId\": 2,\n    \"studentName\": \"Demo Student\",\n    \"tutorName\": \"Demo Tutor\",\n    \"startTime\": \"2026-10-20T10:00:00Z\",\n    \"endTime\": \"2026-10-20T11:00:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "View one appointment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}",
+            "description": "Role: Own records; Admin sees all. Expected 200. Failure: Missing ID: 404; other user's record: 403. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}",
+                "description": "Role: Own records; Admin sees all. Expected 200. Failure: Missing ID: 404; other user's record: 403. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"studentId\": 3,\n  \"availabilityId\": 1,\n  \"status\": \"Booked\",\n  \"tutorId\": 2,\n  \"studentName\": \"Demo Student\",\n  \"tutorName\": \"Demo Tutor\",\n  \"startTime\": \"2026-10-20T10:00:00Z\",\n  \"endTime\": \"2026-10-20T11:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Book an appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/appointments",
+            "description": "Role: Student. Expected 201. Failure: Already booked: 409. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availabilityId\": {{availabilityId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"appointmentId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/appointments",
+                "description": "Role: Student. Expected 201. Failure: Already booked: 409. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"availabilityId\": {{availabilityId}}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"studentId\": 3,\n  \"availabilityId\": 1,\n  \"status\": \"Booked\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reschedule or cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}",
+            "description": "Role: Owner or Admin; tutors cannot reschedule. Expected 200. Failure: Invalid status: 400; cancelled record: 409. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Cancelled\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}",
+                "description": "Role: Owner or Admin; tutors cannot reschedule. Expected 200. Failure: Invalid status: 400; cancelled record: 409. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Cancelled\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"studentId\": 3,\n  \"availabilityId\": 1,\n  \"status\": \"Cancelled\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Accounts",
+      "item": [
+        {
+          "name": "View users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/users",
+            "description": "Role: Admin. Expected 200. Failure: Tutor or Student: 403. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/users",
+                "description": "Role: Admin. Expected 200. Failure: Tutor or Student: 403. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Demo Admin\",\n    \"email\": \"admin@example.com\",\n    \"role\": \"Admin\",\n    \"isActive\": true\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/users",
+            "description": "Role: Admin. Expected 201. Failure: Duplicate email: 409; invalid email: 400. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Student\",\n  \"email\": \"new-{{$timestamp}}@example.com\",\n  \"password\": \"StudentPass123!\",\n  \"role\": \"Student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"userId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 example",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/users",
+                "description": "Role: Admin. Expected 201. Failure: Duplicate email: 409; invalid email: 400. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"New Student\",\n  \"email\": \"new-{{$timestamp}}@example.com\",\n  \"password\": \"StudentPass123!\",\n  \"role\": \"Student\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4,\n  \"name\": \"New Student\",\n  \"email\": \"new@example.com\",\n  \"role\": \"Student\",\n  \"isActive\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/users/{{userId}}",
+            "description": "Role: Admin. Expected 200. Failure: Missing ID: 404; invalid role: 400. See REMAINING_CODE.md.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/users/{{userId}}",
+                "description": "Role: Admin. Expected 200. Failure: Missing ID: 404; invalid role: 400. See REMAINING_CODE.md.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Student\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4,\n  \"name\": \"Updated Student\",\n  \"email\": \"new@example.com\",\n  \"role\": \"Student\",\n  \"isActive\": true\n}"
+            }
+          ]
+        },
+        {
+          "name": "Deactivate account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/users/{{userId}}",
+            "description": "Role: Admin. Expected 200. Failure: Missing ID: 404; last active admin: 409. See REMAINING_CODE.md."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 example",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": "{{baseUrl}}/api/v1/users/{{userId}}",
+                "description": "Role: Admin. Expected 200. Failure: Missing ID: 404; last active admin: 409. See REMAINING_CODE.md."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"User deactivated.\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

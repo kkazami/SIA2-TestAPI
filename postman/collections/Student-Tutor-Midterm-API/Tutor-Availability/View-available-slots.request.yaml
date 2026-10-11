@@ -1,0 +1,11 @@
+$kind: http-request
+name: View available slots
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/v1/availability'
+description: 'Role: Any. Success: 200. Failure: Missing token → 401.'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Expected HTTP 200", () => pm.response.to.have.status(200));
